@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tester API Asistencia</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="background-shape shape-a"></div>
+        <div class="background-shape shape-b"></div>
+
+        <main class="container">
+            <header class="hero">
+                <p class="eyebrow">Asistencia API Vibe</p>
+                <h1>Panel de prueba de endpoints</h1>
+                <p class="subtitle">
+                    Interfaz sencilla para crear estudiantes, registrar
+                    asistencias y consultar reportes.
+                </p>
+            </header>
+
+            <section class="grid">
+                <article class="card">
+                    <h2>Crear estudiante</h2>
+                    <form id="form-estudiante">
+                        <label>
+                            Nombre
+                            <input type="text" name="nombre" required />
+                        </label>
+                        <label>
+                            Apellido
+                            <input type="text" name="apellido" required />
+                        </label>
+                        <button type="submit">POST /api/estudiantes</button>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h2>Listar estudiantes</h2>
+                    <p>Obtiene todos los estudiantes registrados.</p>
+                    <button id="btn-listar-estudiantes" class="secondary">GET
+                        /api/estudiantes</button>
+                </article>
+
+                <article class="card">
+                    <h2>Buscar estudiante por ID</h2>
+                    <form id="form-estudiante-id">
+                        <label>
+                            ID del estudiante
+                            <input type="number" name="id" min="1" required />
+                        </label>
+                        <button type="submit">GET /api/estudiantes/:id</button>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h2>Registrar asistencia</h2>
+                    <form id="form-asistencia">
+                        <label>
+                            ID del estudiante
+                            <input type="number" name="estudianteId" min="1"
+                                required />
+                        </label>
+                        <label>
+                            Fecha
+                            <input type="date" name="fecha" required />
+                        </label>
+                        <label>
+                            Estado
+                            <select name="estado" required>
+                                <option value="presente">presente</option>
+                                <option value="ausente">ausente</option>
+                                <option value="justificada">justificada</option>
+                            </select>
+                        </label>
+                        <button type="submit">POST /api/asistencias</button>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h2>Asistencias por estudiante</h2>
+                    <form id="form-asistencias-estudiante">
+                        <label>
+                            ID del estudiante
+                            <input type="number" name="id" min="1" required />
+                        </label>
+                        <button type="submit">GET
+                            /api/asistencias/estudiante/:id</button>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h2>Reporte de ausentismo</h2>
+                    <p>Top 5 estudiantes con mayor cantidad de ausencias.</p>
+                    <button id="btn-ausentismo" class="secondary">
+                        GET /api/reportes/ausentismo
+                    </button>
+                </article>
+            </section>
+
+            <section class="response-panel">
+                <div class="response-header">
+                    <h2>Respuesta del servidor</h2>
+                    <span id="status-pill">Sin solicitudes</span>
+                </div>
+                <pre
+                    id="output">Haz una solicitud para ver la respuesta JSON aqui.</pre>
+            </section>
+        </main>
+
+        <script>
+			const output = document.getElementById('output');
+			const statusPill = document.getElementById('status-pill');
+
+			const showResult = (status, data) => {
+				statusPill.textContent = `HTTP ${status}`;
+				statusPill.className = status >= 200 && status < 300 ? 'ok' : 'error';
+				output.textContent = JSON.stringify(data, null, 2);
+			};
+
+			const request = async (url, options = {}) => {
+				try {
+					const response = await fetch(url, options);
+					const data = await response.json();
+					showResult(response.status, data);
+				} catch (error) {
+					statusPill.textContent = 'ERROR';
+					statusPill.className = 'error';
+					output.textContent = `No fue posible conectar con la API: ${error.message}`;
+				}
+			};
+
+			document.getElementById('form-estudiante').addEventListener('submit', (event) => {
+				event.preventDefault();
+				const formData = new FormData(event.target);
+				request('/api/estudiantes', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						nombre: formData.get('nombre'),
+						apellido: formData.get('apellido'),
+					}),
+				});
+			});
+
+			document
+				.getElementById('btn-listar-estudiantes')
+				.addEventListener('click', () => request('/api/estudiantes'));
+
+			document
+				.getElementById('form-estudiante-id')
+				.addEventListener('submit', (event) => {
+					event.preventDefault();
+					const formData = new FormData(event.target);
+					request(`/api/estudiantes/${formData.get('id')}`);
+				});
+
+			document.getElementById('form-asistencia').addEventListener('submit', (event) => {
+				event.preventDefault();
+				const formData = new FormData(event.target);
+				request('/api/asistencias', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						estudianteId: Number(formData.get('estudianteId')),
+						fecha: formData.get('fecha'),
+						estado: formData.get('estado'),
+					}),
+				});
+			});
+
+			document
+				.getElementById('form-asistencias-estudiante')
+				.addEventListener('submit', (event) => {
+					event.preventDefault();
+					const formData = new FormData(event.target);
+					request(`/api/asistencias/estudiante/${formData.get('id')}`);
+				});
+
+			document
+				.getElementById('btn-ausentismo')
+				.addEventListener('click', () => request('/api/reportes/ausentismo'));
+		</script>
+    </body>
+</html>

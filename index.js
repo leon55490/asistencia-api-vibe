@@ -1,22 +1,13 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta base
 app.get('/', (req, res) => {
-	res.send(`
-        <h1>API Asistencia Estudiantil Vibe</h1>
-        <p>El servidor está funcionando. Endpoints disponibles:</p>
-        <ul>
-            <li>GET /api/estudiantes</li>
-            <li>POST /api/estudiantes</li>
-            <li>GET /api/estudiantes/:id</li>
-            <li>POST /api/asistencias</li>
-            <li>GET /api/asistencias/estudiante/:id</li>
-            <li>GET /api/reportes/ausentismo</li>
-        </ul>
-    `);
+	res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // In-memory storage
