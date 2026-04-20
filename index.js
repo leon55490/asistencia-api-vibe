@@ -3,6 +3,22 @@ const app = express();
 
 app.use(express.json());
 
+// Ruta base
+app.get('/', (req, res) => {
+	res.send(`
+        <h1>API Asistencia Estudiantil Vibe</h1>
+        <p>El servidor está funcionando. Endpoints disponibles:</p>
+        <ul>
+            <li>GET /api/estudiantes</li>
+            <li>POST /api/estudiantes</li>
+            <li>GET /api/estudiantes/:id</li>
+            <li>POST /api/asistencias</li>
+            <li>GET /api/asistencias/estudiante/:id</li>
+            <li>GET /api/reportes/ausentismo</li>
+        </ul>
+    `);
+});
+
 // In-memory storage
 let estudiantes = [];
 let asistencias = [];
@@ -97,11 +113,9 @@ app.post('/api/asistencias', (req, res) => {
 		(a) => a.estudianteId === estudianteId && a.fecha === fecha
 	);
 	if (duplicate) {
-		return res
-			.status(400)
-			.json({
-				error: 'Ya existe una asistencia registrada para este estudiante en esta fecha',
-			});
+		return res.status(400).json({
+			error: 'Ya existe una asistencia registrada para este estudiante en esta fecha',
+		});
 	}
 
 	const nuevaAsistencia = {
