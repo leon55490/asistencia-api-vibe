@@ -3,11 +3,14 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/styles.css', (req, res) => {
+	res.sendFile(path.join(__dirname, 'styles.css'));
+});
 
 // Ruta base
 app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'public', 'index.html'));
+	res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // In-memory storage
